@@ -1,16 +1,16 @@
 import torch
-from src.gnn_qa.data import GraphQaDataModule, rev_label_dict, InfluenceGraphNNData
-from src.gnn_qa.qa_model import GraphQaModel
-import numpy as np
 from pytorch_lightning import Trainer
 from tqdm import tqdm
 import re
 from transformers import AutoTokenizer
 import pandas as pd
-from src.data.creation.influence_graph import InfluenceGraph
 import resource
 from argparse import ArgumentParser
 
+
+from src.gnn_qa.model.gcn.qa_model_gcn import GraphQaModel
+from src.gnn_qa.model.gcn.data import GraphQaDataModule, rev_label_dict, InfluenceGraphNNData
+from src.gnn_qa.model.gcn.influence_graph import InfluenceGraph
 
 def load_model(ckpt, graphs_file_name):
 

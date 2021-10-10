@@ -12,6 +12,7 @@ import torch.nn as nn
 from torch_geometric.data import Batch
 from argparse import ArgumentParser
 from transformers.models.bert.modeling_bert import BertPooler
+
 from src.gnn_qa.utils import MultiheadedAttention, PositionalEncoding
 from src.gnn_qa.model.gcn.ignn import InfluenceGraphGNN
 
