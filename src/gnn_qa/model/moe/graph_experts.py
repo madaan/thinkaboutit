@@ -1,7 +1,7 @@
 
 import torch
 import torch.nn as nn
-from srcgnn_qa.data import InfluenceGraphNNData
+from src.gnn_qa.model.moe.data import InfluenceGraphNNData
 from src.gnn_qa.moe import GatingNetwork, ExpertModel
 
 class GraphExpert(nn.Module):

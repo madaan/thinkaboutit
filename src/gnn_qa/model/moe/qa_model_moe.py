@@ -8,10 +8,10 @@ from transformers import AutoModel
 import torch.nn as nn
 from argparse import ArgumentParser
 from transformers import get_linear_schedule_with_warmup
-from gnn_qa.data import InfluenceGraphNNData
-from src.gnn_qa.utils import CustomRobertaClassificationHead, CustomRobertaClassificationHeadConcat
+from src.gnn_qa.model.moe.data import InfluenceGraphNNData
+from src.gnn_qa.utils import CustomRobertaClassificationHead
 from src.gnn_qa.moe import GatingNetwork, ExpertModel
-from src.gnn_qa.graph_experts import GraphExpert
+from src.gnn_qa.model.moe.graph_experts import GraphExpert
 
 
 class GraphQaModel(LightningModule):

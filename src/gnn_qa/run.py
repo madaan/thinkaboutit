@@ -11,19 +11,19 @@ from pytorch_lightning.plugins import DDPPlugin
 logging.basicConfig(level=logging.INFO)
 MODEL = "str"
 
+
 class GraphQaTrainer(object):
     def __init__(self) -> None:
         super().__init__()
         rlimit = resource.getrlimit(resource.RLIMIT_NOFILE)
         resource.setrlimit(resource.RLIMIT_NOFILE, (4096, rlimit[1]))
 
-        
         self.init_args()
         self.seed_everything()
         self.init_dm()
         self.init_model()
         self.init_trainer()
-        
+
     def init_args(self):
         parser = ArgumentParser()
         parser.add_argument("--num_gpus", type=int)
@@ -33,10 +33,15 @@ class GraphQaTrainer(object):
         parser.add_argument("--dataset_basedir", help="Base directory where the dataset is located.", type=str)
         parser.add_argument("--graphs_file_name", help="File that contains the generated influence graphs.", type=str)
         parser.add_argument("--format", help="Training data format", type=str)
-        parser.add_argument("--merge_nodes_op", help="Operation to merge graphs with [join, random, first, last]", type=str)
+        parser.add_argument(
+            "--merge_nodes_op", help="Operation to merge graphs with [join, random, first, last]", type=str
+        )
         parser.add_argument("--use_graphs", action="store_true", default=True)  # TODO remove this option
+        parser.add_argument("--model_type", help="Name of the model", choices=["str", "gcn", "moe", "gcn_moe"])
+        args, _ = parser.parse_known_args()
+        print(args.model_type)
+        self.data_module, self.qa_model = self.get_model_data_class(args.model_type)
         parser = pl.Trainer.add_argparse_args(parser)
-        self.data_module, self.qa_model = self.get_model_data_class()
         parser = self.qa_model.add_model_specific_args(parser)
         self.args = parser.parse_args()
         self.args.num_gpus = len(str(self.args.gpus).split(","))
@@ -54,17 +59,17 @@ class GraphQaTrainer(object):
         train_batches = len(dm.train_dataloader()) // total_devices
         return (self.args.max_epochs * train_batches) // self.args.accumulate_grad_batches
 
-    def get_model_data_class(self):
-        if MODEL == "hier_moe":
+    def get_model_data_class(self, model_type: str):
+        if model_type == "moe":
             from src.gnn_qa.model.moe.qa_model_moe import GraphQaModel
             from src.gnn_qa.model.moe.data import GraphQaDataModule
-        elif MODEL == "gcn":
-            from src.gnn_qa.model.moe.qa_model_moe import GraphQaModel
-            from src.gnn_qa.model.moe.data import GraphQaDataModule
-        elif MODEL == "gcn_moe":
-            from src.gnn_qa.model.moe.qa_model_moe import GraphQaModel
-            from src.gnn_qa.model.moe.data import GraphQaDataModule
-        elif MODEL == "str":
+        elif model_type == "gcn":
+            from src.gnn_qa.model.gcn.qa_model_gcn import GraphQaModel
+            from src.gnn_qa.model.gcn.data import GraphQaDataModule
+        elif model_type == "gcn_moe":
+            from src.gnn_qa.model.gcn_moe.qa_model_moe import GraphQaModel
+            from src.gnn_qa.model.gcn_moe.data import GraphQaDataModule
+        elif model_type == "str":
             from src.gnn_qa.model.str.qa_model_str import GraphQaModel
             from src.gnn_qa.model.str.data import GraphQaDataModule
         return GraphQaDataModule, GraphQaModel

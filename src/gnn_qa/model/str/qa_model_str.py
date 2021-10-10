@@ -22,6 +22,7 @@ class GraphQaModel(LightningModule):
     def add_model_specific_args(parent_parser):
         parser = ArgumentParser(parents=[parent_parser], add_help=False)
         parser.add_argument("--min_lr", default=0, type=float, help="Minimum learning rate.")
+        parser.add_argument("--embedding_op", type=str, help="The operation to be used to concatenate the embeddings")
         parser.add_argument("--h_dim", type=int, help="Size of the hidden dimension.", default=768)
         parser.add_argument("--n_heads", type=int, help="Number of attention heads.", default=3)
         parser.add_argument("--kqv_dim", type=int, help="Dimensionality of the each attention head.", default=256)
