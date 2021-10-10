@@ -1,5 +1,6 @@
 """Wraps the influence graph under a Pytorch-geom wrapper
 """
+import logging
 import torch.nn.functional as F
 from torch_geometric.nn import RGCNConv, GCNConv
 from pytorch_lightning.core.lightning import LightningModule
@@ -12,9 +13,9 @@ class InfluenceGraphGNN(LightningModule):
         super(InfluenceGraphGNN, self).__init__()
         self.rgcn = rgcn
         if rgcn:
+            logging.info("Using RGCN")
             self.conv1 = RGCNConv(num_in_features, num_out_features, num_relations=num_relations)
             self.conv2 = RGCNConv(num_out_features, num_out_features, num_relations=num_relations)
-            self.conv3 = RGCNConv(num_out_features, num_out_features, num_relations=num_relations)
         else:
             self.conv1 = GCNConv(num_in_features, num_out_features)
             self.conv2 = GCNConv(num_out_features, num_out_features)
@@ -28,22 +29,25 @@ class InfluenceGraphGNN(LightningModule):
     def forward_rgcn(self, data):
         x, edge_index, edge_attr = data.x, data.edge_index, data.edge_attr
         edge_index = edge_index.to(self.device)
-        x = self.conv1(x, edge_index=edge_index, edge_type=edge_attr)
-        x = F.relu(x)
+
+        x = F.relu(self.conv1(x, edge_index=edge_index, edge_type=edge_attr))
+
         x = F.dropout(x, training=self.training)
-        x = self.conv2(x, edge_index=edge_index, edge_type=edge_attr)
-        x = F.relu(x)
-        x = F.dropout(x, training=self.training)
-        x = self.conv3(x, edge_index=edge_index, edge_type=edge_attr)
+
+        x = F.relu(self.conv2(x, edge_index=edge_index, edge_type=edge_attr))
+
         return x
 
     def forward_gcn(self, data):
         x, edge_index, edge_attr = data.x, data.edge_index, data.edge_attr
         edge_index = edge_index.to(self.device)
-        x = self.conv1(x, edge_index=edge_index)
-        x = F.relu(x)
+
+        x = F.relu(self.conv1(x, edge_index=edge_index))
+
         x = F.dropout(x, training=self.training)
-        x = self.conv2(x, edge_index=edge_index)
+        
+        x = F.relu(self.conv2(x, edge_index=edge_index))
+
         return x
 
 if __name__ == "__main__":

@@ -1,4 +1,4 @@
-from collections import UserString
+import argparse
 from transformers import BertConfig
 import torch
 from torch_geometric.data import Data
@@ -13,14 +13,14 @@ from torch_geometric.data import Batch
 from argparse import ArgumentParser
 from transformers.models.bert.modeling_bert import BertPooler
 from src.gnn_qa.utils import MultiheadedAttention, PositionalEncoding
-from src.gnn_qa.ignn import InfluenceGraphGNN
+from src.gnn_qa.model.gcn.ignn import InfluenceGraphGNN
 
 
 class GraphQaModel(LightningModule):
     def __init__(self, hparams):
         super().__init__()
-        self.hparams = hparams
-        self.save_hyperparameters()
+        self.hparams.update(vars(hparams) if isinstance(hparams, argparse.Namespace) else hparams)
+        self.save_hyperparameters(hparams)
         config = BertConfig()
         # self.model = BertForSequenceClassification.from_pretrained(self.hparams.model_name, num_labels=self.hparams.n_class)
         self.roberta = AutoModel.from_pretrained(self.hparams.model_name)
@@ -90,6 +90,7 @@ class GraphQaModel(LightningModule):
 
         # step 2: encode the nodes
         nodes_gcn_embedding = self.forward_gcn(graphs, labels)  # (B, num_nodes, h_dim)
+
         # nodes_gcn_embedding = self.positional_encoding(nodes_gcn_embedding)
 
         # step 3: get attention vector, graph representation
@@ -152,14 +153,14 @@ class GraphQaModel(LightningModule):
         cls_embeddeding = cls_embeddeding.view(batch_sz, nodes_per_graph, -1)  #  (num_graph, num_nodes, 768)
         # return cls_embeddeding
         # cls_embeddeding = self.positional_encoding(cls_embeddeding)
-        num_nodes_processed = 0
 
         # assign the graph.x to the correct graphs
         for i, graph in enumerate(graphs):
             # graph.x = cls_embeddeding[num_nodes_processed:num_nodes_processed + graph.num_nodes]
             graph.x = cls_embeddeding[i]
             graph.x.to(self.device)
-            num_nodes_processed += graph.num_nodes
+            del graph.tokens  # we don't need the tokens anymore
+
         return graphs
 
     def training_step(self, batch, batch_idx):

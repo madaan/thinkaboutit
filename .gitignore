@@ -1,4 +1,12 @@
 # Byte-compiled / optimized / DLL files
+outputs/
+results/
+lightning_logs/
+*.out
+*.csv
+*.tsv
+*tmp*
+data/
 __pycache__/
 *.py[cod]
 *$py.class

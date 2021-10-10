@@ -11,7 +11,7 @@ from transformers import AutoTokenizer
 from torch_geometric.data import Data
 from tqdm import tqdm
 from collections import defaultdict
-from src.gnn_qa.influence_graph import InfluenceGraph
+from src.gnn_qa.model.gcn.influence_graph import InfluenceGraph
 
 label_dict = {"less": 0, "attenuator": 0,
               "more": 1, "intensifier": 1, "no_effect": 2}
@@ -25,7 +25,7 @@ rev_label_dict = {k: "/".join(v) for k, v in rev_label_dict.items()}
 
 class GraphQaDataModule(pl.LightningDataModule):
     def __init__(self, basedir: str, tokenizer_name: str, batch_size: int,
-                 graphs_file_name: str, num_workers: int = 16):
+                 graphs_file_name: str, num_workers: int = 16, **kwargs):
         super().__init__()
         self.basedir = basedir
         self.graphs_file_name = graphs_file_name
