@@ -2,9 +2,16 @@
 set -u
 export PYTHONPATH=".:../:.:src:../:../../"
 export TOKENIZERS_PARALLELISM=false
-DATA_DIR="data/unit_test_medium/"
-GRAPH_NAME="influence_graphs_unit_test.jsonl"
+
 MODEL_TYPE="$1"
+DATA_DIR="$2"
+GRAPH_NAME="$3"
+GPU="$4"
+
+echo "Model type: $MODEL_TYPE"
+echo "Data dir: $DATA_DIR"
+echo "Graph name: $GRAPH_NAME"
+echo "GPU: $GPU"
 
 BASE_ARGS=(--dataset_basedir ${DATA_DIR}
     --graphs_file_name ${GRAPH_NAME}
@@ -33,5 +40,4 @@ else
     ARGS=("${BASE_ARGS[@]}")
 fi
 
-which python
-python src/gnn_qa/run.py "${ARGS[@]}"
+export GPU="${GPU}" && python -u src/gnn_qa/run.py "${ARGS[@]}"
