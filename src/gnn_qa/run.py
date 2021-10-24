@@ -38,6 +38,7 @@ class GraphQaTrainer(object):
         )
         parser.add_argument("--use_graphs", action="store_true", default=True)  # TODO remove this option
         parser.add_argument("--model_type", help="Name of the model", choices=["str", "gcn", "moe", "gcn_moe"])
+        parser.add_argument("--node_op", help="Operation to merge nodes with [all, first, last]", type=str)
         args, _ = parser.parse_known_args()
         print(args.model_type)
         self.data_module, self.qa_model = self.get_model_data_class(args.model_type)
@@ -67,7 +68,7 @@ class GraphQaTrainer(object):
             from src.gnn_qa.model.gcn.qa_model_gcn import GraphQaModel
             from src.gnn_qa.model.gcn.data import GraphQaDataModule
         elif model_type == "gcn_moe":
-            from src.gnn_qa.model.gcn_moe.qa_model_moe import GraphQaModel
+            from src.gnn_qa.model.gcn_moe.qa_model_gcn_moe import GraphQaModel
             from src.gnn_qa.model.gcn_moe.data import GraphQaDataModule
         elif model_type == "str":
             from src.gnn_qa.model.str.qa_model_str import GraphQaModel

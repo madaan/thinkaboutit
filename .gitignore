@@ -1,3 +1,7 @@
+# Data
+pre_trained_models/
+data/
+
 # Byte-compiled / optimized / DLL files
 outputs/
 results/
