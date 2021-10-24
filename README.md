@@ -1,4 +1,4 @@
-# Code and data for *Think about it! Using inference graphs for defeasible reasoning!*
+# Code and data for *Think about it! Improving defeasible reasoning by first modeling the question scenario*
 
 
 ## Setting up:
@@ -13,7 +13,7 @@
 
 2. **Training**
 
-- You can run training using the `scripts/train.sh` script.
+- You can run training using `scripts/train.sh` script.
   
 Usage:
 
@@ -27,7 +27,12 @@ scripts/train.sh MODEL_TYPE DATA_DIR GRAPH_NAME GPU
     - GRAPH_NAME: name of the graph to be used for training.
     - GPU: GPU to use. If not specified, will use the first available GPU.
 
-- Sample unit data is located in `data/unit_test`. The following command runs a unit test:
+- For example, to train an moe model on atomic dataset with cleaned graph, run:
+  ```sh
+    scripts/train.sh moe data/defeasible_graph_augmented_qa/t5/atomic/influence_graphs_cleaned.jsonl 0
+ ```
+
+- Sample unit test data is located in `data/unit_test`. The following command runs a unit test:
 ```sh
 bash scripts/train.sh moe data/unit_test/ influence_graphs.jsonl 0
 ```
