@@ -1,6 +1,7 @@
 # Data
-pre_trained_models/
-data/
+pre_trained_models
+data
+*.zip
 
 # Byte-compiled / optimized / DLL files
 outputs/
