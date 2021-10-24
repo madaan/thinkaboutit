@@ -12,8 +12,8 @@ from transformers import get_linear_schedule_with_warmup
 
 
 from src.gnn_qa.model.gcn_moe.data import InfluenceGraphNNData
-from src.gnn_qa.utils import CustomRobertaClassificationHead
-from src.gnn_qa.moe import GatingNetwork, ExpertModel
+from src.gnn_qa.model.lib.utils import CustomRobertaClassificationHead
+from src.gnn_qa.model.lib.moe import GatingNetwork, ExpertModel
 from src.gnn_qa.model.gcn_moe.graph_experts import GraphExpert
 from src.gnn_qa.model.gcn_moe.ignn import InfluenceGraphGNN
 

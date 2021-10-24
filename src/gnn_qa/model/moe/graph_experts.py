@@ -2,7 +2,7 @@
 import torch
 import torch.nn as nn
 from src.gnn_qa.model.moe.data import InfluenceGraphNNData
-from src.gnn_qa.moe import GatingNetwork, ExpertModel
+from src.gnn_qa.model.lib.moe import GatingNetwork, ExpertModel
 
 class GraphExpert(nn.Module):
     def __init__(self, num_layers: int, input_size: int, hidden_size: int, output_size: int,
