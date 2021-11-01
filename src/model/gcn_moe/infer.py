@@ -8,9 +8,9 @@ import pandas as pd
 import resource
 from argparse import ArgumentParser
 
-from src.gnn_qa.model.gcn_moe.qa_model_gcn_moe import GraphQaModel
-from src.gnn_qa.model.gcn_moe.influence_graph import InfluenceGraph
-from src.gnn_qa.model.gcn_moe.data import GraphQaDataModule, rev_label_dict, InfluenceGraphNNData
+from src.model.gcn_moe.qa_model_gcn_moe import GraphQaModel
+from src.model.gcn_moe.influence_graph import InfluenceGraph
+from src.model.gcn_moe.data import GraphQaDataModule, rev_label_dict, InfluenceGraphNNData
 
 
 

@@ -8,10 +8,10 @@ import pandas as pd
 import resource
 from argparse import ArgumentParser
 
-from src.gnn_qa.model.moe.qa_model_moe import GraphQaModel
+from src.model.moe.qa_model_moe import GraphQaModel
 
-from src.gnn_qa.model.moe.influence_graph import InfluenceGraph
-from src.gnn_qa.model.moe.data import GraphQaDataModule, rev_label_dict, InfluenceGraphNNData
+from src.model.moe.influence_graph import InfluenceGraph
+from src.model.moe.data import GraphQaDataModule, rev_label_dict, InfluenceGraphNNData
 
 
 def load_model(ckpt, graphs_file_name):

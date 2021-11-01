@@ -9,10 +9,10 @@ import pandas as pd
 import resource
 from argparse import ArgumentParser
 
-from src.gnn_qa.model.str.qa_model_str import GraphQaModel
+from src.model.str.qa_model_str import GraphQaModel
 
-from src.gnn_qa.model.str.influence_graph import InfluenceGraph
-from src.gnn_qa.model.str.data import GraphQaDataModule, rev_label_dict, InfluenceGraphNNData
+from src.model.str.influence_graph import InfluenceGraph
+from src.model.str.data import GraphQaDataModule, rev_label_dict, InfluenceGraphNNData
 
 
 def load_model(ckpt, graphs_file_name):

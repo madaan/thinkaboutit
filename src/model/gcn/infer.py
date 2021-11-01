@@ -8,9 +8,9 @@ import resource
 from argparse import ArgumentParser
 
 
-from src.gnn_qa.model.gcn.qa_model_gcn import GraphQaModel
-from src.gnn_qa.model.gcn.data import GraphQaDataModule, rev_label_dict, InfluenceGraphNNData
-from src.gnn_qa.model.gcn.influence_graph import InfluenceGraph
+from src.model.gcn.qa_model_gcn import GraphQaModel
+from src.model.gcn.data import GraphQaDataModule, rev_label_dict, InfluenceGraphNNData
+from src.model.gcn.influence_graph import InfluenceGraph
 
 def load_model(ckpt, graphs_file_name):
 

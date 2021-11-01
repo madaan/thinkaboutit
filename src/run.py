@@ -62,17 +62,17 @@ class GraphQaTrainer(object):
 
     def get_model_data_class(self, model_type: str):
         if model_type == "moe":
-            from src.gnn_qa.model.moe.qa_model_moe import GraphQaModel
-            from src.gnn_qa.model.moe.data import GraphQaDataModule
+            from src.model.moe.qa_model_moe import GraphQaModel
+            from src.model.moe.data import GraphQaDataModule
         elif model_type == "gcn":
-            from src.gnn_qa.model.gcn.qa_model_gcn import GraphQaModel
-            from src.gnn_qa.model.gcn.data import GraphQaDataModule
+            from src.model.gcn.qa_model_gcn import GraphQaModel
+            from src.model.gcn.data import GraphQaDataModule
         elif model_type == "gcn_moe":
-            from src.gnn_qa.model.gcn_moe.qa_model_gcn_moe import GraphQaModel
-            from src.gnn_qa.model.gcn_moe.data import GraphQaDataModule
+            from src.model.gcn_moe.qa_model_gcn_moe import GraphQaModel
+            from src.model.gcn_moe.data import GraphQaDataModule
         elif model_type == "str":
-            from src.gnn_qa.model.str.qa_model_str import GraphQaModel
-            from src.gnn_qa.model.str.data import GraphQaDataModule
+            from src.model.str.qa_model_str import GraphQaModel
+            from src.model.str.data import GraphQaDataModule
         return GraphQaDataModule, GraphQaModel
 
     def init_dm(self):

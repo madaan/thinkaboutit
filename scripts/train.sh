@@ -40,4 +40,4 @@ else
     ARGS=("${BASE_ARGS[@]}")
 fi
 
-export CUDA_VISIBLE_DEVICES="${GPU}" && python -u src/gnn_qa/run.py "${ARGS[@]}"
+export CUDA_VISIBLE_DEVICES="${GPU}" && python -u src/run.py "${ARGS[@]}"

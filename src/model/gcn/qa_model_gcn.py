@@ -13,8 +13,8 @@ from torch_geometric.data import Batch
 from argparse import ArgumentParser
 from transformers.models.bert.modeling_bert import BertPooler
 
-from src.gnn_qa.model.lib.utils import MultiheadedAttention, PositionalEncoding
-from src.gnn_qa.model.gcn.ignn import InfluenceGraphGNN
+from src.model.lib.utils import MultiheadedAttention, PositionalEncoding
+from src.model.gcn.ignn import InfluenceGraphGNN
 
 
 class GraphQaModel(LightningModule):

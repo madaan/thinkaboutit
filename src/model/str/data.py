@@ -7,7 +7,7 @@ import pandas as pd
 from transformers import AutoTokenizer
 from tqdm import tqdm
 from collections import defaultdict
-from src.gnn_qa.model.str.influence_graph import InfluenceGraph
+from src.model.str.influence_graph import InfluenceGraph
 
 label_dict = {"less": 0, "attenuator": 0, "more": 1, "intensifier": 1, "no_effect": 2}
 rev_label_dict = defaultdict(list)

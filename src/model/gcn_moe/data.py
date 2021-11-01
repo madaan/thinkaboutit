@@ -10,7 +10,8 @@ import pandas as pd
 from transformers import AutoTokenizer
 from tqdm import tqdm
 from collections import defaultdict
-from src.gnn_qa.model.moe.influence_graph import InfluenceGraph
+
+from src.model.gcn_moe.influence_graph import InfluenceGraph
 
 label_dict = {"less": 0, "attenuator": 0,
               "more": 1, "intensifier": 1, "no_effect": 2}
@@ -24,7 +25,7 @@ rev_label_dict = {k: "/".join(v) for k, v in rev_label_dict.items()}
 
 class GraphQaDataModule(pl.LightningDataModule):
     def __init__(self, basedir: str, tokenizer_name: str, batch_size: int,
-                 graphs_file_name: str, num_workers: int = 16, **kwargs):
+                 graphs_file_name: str, node_op: str, num_workers: int = 32, **kwargs):
         super().__init__()
         self.basedir = basedir
         self.graphs_file_name = graphs_file_name
@@ -32,32 +33,37 @@ class GraphQaDataModule(pl.LightningDataModule):
         self.num_workers = num_workers
         self.tokenizer = AutoTokenizer.from_pretrained(
             tokenizer_name, do_lower_case=True)
+        self.node_op = node_op
 
     def train_dataloader(self):
         dataset = GraphQADataset(tokenizer=self.tokenizer,
-                                 qa_pth=f"{self.basedir}/qa-train.jsonl", graph_pth=f"{self.basedir}/{self.graphs_file_name}")
+                                 qa_pth=f"{self.basedir}/qa-train.jsonl",
+                                 graph_pth=f"{self.basedir}/{self.graphs_file_name}", node_op=self.node_op)
         return DataLoader(dataset=dataset, batch_size=self.batch_size,
                           shuffle=True, num_workers=self.num_workers, collate_fn=GraphQADataset.collate_pad)
 
     def val_dataloader(self):
         dataset = GraphQADataset(tokenizer=self.tokenizer,
-                                 qa_pth=f"{self.basedir}/qa-dev.jsonl", graph_pth=f"{self.basedir}/{self.graphs_file_name}")
+                                 qa_pth=f"{self.basedir}/qa-dev.jsonl",
+                                 graph_pth=f"{self.basedir}/{self.graphs_file_name}", node_op=self.node_op)
         return DataLoader(dataset=dataset, batch_size=self.batch_size,
                           shuffle=False, num_workers=self.num_workers, collate_fn=GraphQADataset.collate_pad)
 
     def test_dataloader(self):
         dataset = GraphQADataset(tokenizer=self.tokenizer,
-                                 qa_pth=f"{self.basedir}/qa-test.jsonl", graph_pth=f"{self.basedir}/{self.graphs_file_name}")
+                                 qa_pth=f"{self.basedir}/qa-test.jsonl",
+                                 graph_pth=f"{self.basedir}/{self.graphs_file_name}", node_op=self.node_op)
         return DataLoader(dataset=dataset, batch_size=self.batch_size,
                           shuffle=False, num_workers=self.num_workers, collate_fn=GraphQADataset.collate_pad)
 
 
 class GraphQADataset(Dataset):
-    def __init__(self, tokenizer, qa_pth: str, graph_pth: str) -> None:
+    def __init__(self, tokenizer, qa_pth: str, graph_pth: str, node_op: str) -> None:
         super().__init__()
         self.qa_pth = qa_pth
         self.graph_pth = graph_pth
         self.tokenizer = tokenizer
+        self.node_op = node_op
         self.read_graphs()
         self.read_qa()
 
@@ -67,7 +73,7 @@ class GraphQADataset(Dataset):
         self.graphs = {}
         for graph_dict in tqdm(influence_graphs, desc="Reading graphs", total=len(influence_graphs)):
             self.graphs[str(graph_dict["graph_id"])] = InfluenceGraphNNData.make_data_from_dict(
-                graph_dict, self.tokenizer)
+                graph_dict, tokenizer=self.tokenizer, node_op=self.node_op)
 
     def read_qa(self):
         logging.info("Reading data from {}".format(self.qa_pth))
@@ -83,10 +89,8 @@ class GraphQADataset(Dataset):
             self.questions.append(question)
             self.paragraphs.append(para)
             self.graph_ids.append(row["metadata"]["graph_id"])
-            if 'premise' in row:
-                self.PHUs.append(f"{row['premise']}</s></s>{row['hypo']}</s></s>{row['update']}")
-            else:
-                self.PHUs.append(para + "</s></s>" + question)
+            self.PHUs.append(
+                f"{row['premise']}</s></s>{row['hypo']}</s></s>{row['update']}")
 
         # encoded_input = self.tokenizer(self.paragraphs, self.questions)
         encoded_input = self.tokenizer(self.PHUs)
@@ -121,8 +125,10 @@ class GraphQADataset(Dataset):
         tokens_mask = torch.zeros(num_elems, max_ques_token_len).long()
         token_type_ids = torch.zeros(num_elems, max_ques_token_len).long()
         labels = torch.zeros(num_elems).long()
-        graphs = torch.zeros(num_elems * InfluenceGraphNNData.num_nodes_per_graph, max_node_token_len).long()
-        graph_masks = torch.zeros(num_elems * InfluenceGraphNNData.num_nodes_per_graph, max_node_token_len).long()
+        graphs = torch.zeros(
+            num_elems * InfluenceGraphNNData.num_nodes_per_graph, max_node_token_len).long()
+        graph_masks = torch.zeros(
+            num_elems * InfluenceGraphNNData.num_nodes_per_graph, max_node_token_len).long()
         for i in range(num_elems):
             toks, type_ids, graph, label = batch[i]
             length = len(toks)
@@ -132,8 +138,10 @@ class GraphQADataset(Dataset):
             # graphs.append(graph)
             labels[i] = label_dict[label]
             for j in range(InfluenceGraphNNData.num_nodes_per_graph):
-                graphs[i * InfluenceGraphNNData.num_nodes_per_graph + j, :len(graph[j])] = torch.LongTensor(graph[j])
-                graph_masks[i * InfluenceGraphNNData.num_nodes_per_graph + j, :len(graph[j])] = 1
+                graphs[i * InfluenceGraphNNData.num_nodes_per_graph +
+                       j, :len(graph[j])] = torch.LongTensor(graph[j])
+                graph_masks[i * InfluenceGraphNNData.num_nodes_per_graph +
+                            j, :len(graph[j])] = 1
         return [tokens, token_type_ids, tokens_mask, graphs, graph_masks, labels]
 
 
@@ -155,8 +163,6 @@ class InfluenceGraphNNData:
     """
     # node_index = {
     #     "V": 0, "Z": 1, "X": 2, "U": 3, "W": 4, "Y": 5, "dec": 6, "acc": 7}
-    node_index = [("V",  0), ("Z", 1), ("U", 2), ("W", 3), ("Y", 4)]
-    num_nodes_per_graph = len(node_index)
     node_to_desc = {
         "V": "external negative = ",
         "Z": "external positive = ",
@@ -164,39 +170,78 @@ class InfluenceGraphNNData:
         "Y": "mediator positive = ",
         "W": "mediator negative = ",
     }
-    # index_node = {v: k for k, v in node_index.items()}
-    edge_index = [[0, 1, 2, 2, 3, 4, 4, 5, 5],
-                  [2, 2, 4, 5, 5, 6, 7, 6, 7]]
     EDGE_TYPE_HELPS, EDGE_TYPE_HURTS = 0, 1
+    # Baseline
+    node_index = [("V",  0), ("Z", 1), ("U", 2), ("W", 3), ("Y", 4)]
+    edge_index = [[0, 1, 0, 1, 2],
+                  [3, 3, 4, 4, 4]]
     
+    edge_type = [EDGE_TYPE_HELPS,
+                     EDGE_TYPE_HURTS,
+                     EDGE_TYPE_HURTS,
+                     EDGE_TYPE_HELPS,
+                     EDGE_TYPE_HURTS]
+
+    # # Y only
+    # node_index = [("V",  0), ("Z", 1), ("U", 2), ("Y", 3)]
+    # edge_index = [[0, 1, 2],
+    #               [3, 3, 3]]
+    
+    # edge_type = [EDGE_TYPE_HURTS,
+    #                  EDGE_TYPE_HELPS,
+    #                  EDGE_TYPE_HURTS]
+
+    # # with X
+    # node_index = [("V",  0), ("Z", 1), ("X", 2), ("U", 3), ("W", 4), ("Y", 5)]
+    # edge_index = [[0, 1, 2, 2, 3],
+    #               [2, 2, 4, 5, 5]]
+    # edge_type = [EDGE_TYPE_HURTS, 
+    #                  EDGE_TYPE_HELPS, 
+    #                  EDGE_TYPE_HURTS,
+    #                  EDGE_TYPE_HELPS,
+    #                  EDGE_TYPE_HURTS]
+   
+    num_nodes_per_graph = len(node_index)
     max_length = 35
+
     def __init__(self, data) -> None:
         super().__init__()
         self.data = data
 
     @staticmethod
-    def make_data_from_dict(graph_dict: dict, tokenizer):
-        igraph = InfluenceGraph(graph_dict)
-        if igraph.graph["Y_affects_outcome"] == "more":
-            # the final edges depend on para outcome
-            edge_features = [InfluenceGraphNNData.EDGE_TYPE_HURTS, InfluenceGraphNNData.EDGE_TYPE_HELPS, InfluenceGraphNNData.EDGE_TYPE_HURTS, InfluenceGraphNNData.EDGE_TYPE_HELPS,
-                             InfluenceGraphNNData.EDGE_TYPE_HURTS, InfluenceGraphNNData.EDGE_TYPE_HELPS, InfluenceGraphNNData.EDGE_TYPE_HURTS, InfluenceGraphNNData.EDGE_TYPE_HURTS, InfluenceGraphNNData.EDGE_TYPE_HELPS]
-        else:
-            edge_features = [InfluenceGraphNNData.EDGE_TYPE_HURTS, InfluenceGraphNNData.EDGE_TYPE_HELPS, InfluenceGraphNNData.EDGE_TYPE_HURTS, InfluenceGraphNNData.EDGE_TYPE_HELPS,
-                             InfluenceGraphNNData.EDGE_TYPE_HURTS, InfluenceGraphNNData.EDGE_TYPE_HURTS, InfluenceGraphNNData.EDGE_TYPE_HELPS, InfluenceGraphNNData.EDGE_TYPE_HELPS, InfluenceGraphNNData.EDGE_TYPE_HURTS]
+    def make_data_from_dict(graph_dict: dict, node_op: str, tokenizer):
+        def _get_first_part_label(node_id):
+            if len(igraph.nodes_dict[node_id]) > 0:
+                return igraph.nodes_dict[node_id][0].split("[OR]")[0].strip()
+            else:
+                return tokenizer.pad_token
 
+        def _get_last_part_label(node_id):
+            if len(igraph.nodes_dict[node_id]) > 0:
+                return igraph.nodes_dict[node_id][0].split("[OR]")[-1].strip()
+            else:
+                return tokenizer.pad_token
+
+        def _get_entire_label(node_id):
+            if len(igraph.nodes_dict[node_id]) > 0:
+                return igraph.nodes_dict[node_id][0]
+            else:
+                return tokenizer.pad_token
+        node_func = {
+            "first": _get_first_part_label,
+            "last": _get_last_part_label,
+            "all": _get_entire_label
+        }[node_op]
+
+        igraph = InfluenceGraph(graph_dict)
+        
         node_sentences = []
         for node, node_idx in InfluenceGraphNNData.node_index:
-            if node in igraph.nodes_dict and len(igraph.nodes_dict[node]) > 0:
-                # node_sentences.append(InfluenceGraphNNData.node_to_desc[node] + " [OR] ".join(igraph.nodes_dict[node]))
-                node_sentences.append(" [OR] ".join(igraph.nodes_dict[node]))
-            else:
-                node_sentences.append(tokenizer.pad_token)
+            node_sentences.append(node_func(node))
+
         encoding_dict = tokenizer(
             node_sentences, max_length=InfluenceGraphNNData.max_length, truncation=True)
         return encoding_dict["input_ids"]
-        # return Data(graph_id=str(igraph.graph_id), num_nodes=len(InfluenceGraphNNData.node_index), tokens=encoding_dict["input_ids"],
-        #             edge_index=torch.tensor(InfluenceGraphNNData.edge_index).long(), edge_attr=torch.tensor(edge_features).long())
 
 
 if __name__ == "__main__":
