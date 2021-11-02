@@ -37,46 +37,11 @@ scripts/train.sh MODEL_TYPE DATA_DIR GRAPH_NAME GPU
 bash scripts/train.sh moe data/unit_test/ influence_graphs.jsonl 0
 ```
 
-## Data and pre-trained models listing
+## Data and pre-trained models
 
 ### Data
 
-
-
-
-The structure of `data` after unzipping will be as follows:
-```
-data
-├── defeasible_graph_augmented_qa
-│   └── t5
-│       ├── atomic
-│       │   ├── influence_graphs_cleaned.jsonl
-│       │   ├── influence_graphs_noisy.jsonl
-│       │   ├── qa-dev.jsonl
-│       │   ├── qa-test.jsonl
-│       │   └── qa-train.jsonl
-│       ├── snli
-│       │   ├── influence_graphs_cleaned.jsonl
-│       │   ├── influence_graphs_noisy.jsonl
-│       │   ├── qa-dev.jsonl
-│       │   ├── qa-test.jsonl
-│       │   └── qa-train.jsonl
-│       └── social
-│           ├── influence_graphs_cleaned.jsonl
-│           ├── influence_graphs_noisy.jsonl
-│           ├── qa-dev.jsonl
-│           ├── qa-test.jsonl
-│           └── qa-train.jsonl
-└── unit_test
-    ├── influence_graphs.jsonl
-    ├── qa-dev.jsonl
-    ├── qa-test.jsonl
-    └── qa-train.jsonl
-```
-
-Here, each domain (`snli`, `atomic`, `social`) has its own folder, which contains the  `qa` files and the cleaned and noisy influence graphs (`influence_graphs_cleaned.jsonl` and `influence_graphs_noisy.jsonl`, respectively).
-The details on graph generation are described [here](https://aclanthology.org/2021.findings-acl.456.pdf).
-
+- Please see the [dataset documentation](docs/data.md).
 
 ### Pre-trained models
 
