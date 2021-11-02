@@ -21,9 +21,9 @@ BASE_ARGS=(--dataset_basedir ${DATA_DIR}
     --model_name roberta-base --batch_size 16 
     --n_class 2 --warmup_prop 0.10)
 
-STR_ARGS=(--embedding_op "concat"
-    --merge_nodes_op "join"
-    --format phyu)
+STR_ARGS=(--embedding_op "concat"  # concatenate the graph and query embeddings
+        --merge_nodes_op "join"    # if a node has multiple events, join it into a single string
+        --format phyu)             # the order in which to encode the query
 
 
 MOE_ARGS=(--embedding_op "concat" --n_heads 1)
