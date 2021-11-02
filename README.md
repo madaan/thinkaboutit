@@ -1,6 +1,8 @@
-# Code and data for *Think about it! Improving defeasible reasoning by first modeling the question scenario*
+# *Think about it! Improving defeasible reasoning by first modeling the question scenario*
 
 ![thinkaboutit](docs/overview.jpg)
+
+Code and data *Think about it! Improving defeasible reasoning by first modeling the question scenario* (EMNLP 2021)
 
 ## Setting up
 
