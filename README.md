@@ -43,3 +43,7 @@ bash scripts/train.sh moe data/unit_test/ influence_graphs.jsonl 0
 - [Data documentation](docs/data.md).
 
 - [Pre-trained models documentation](docs/pretrained_models.md)
+
+---
+
+![thinkaboutit](docs/thinkaboutit_overview.gif)
