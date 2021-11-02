@@ -1,5 +1,6 @@
 # Code and data for *Think about it! Improving defeasible reasoning by first modeling the question scenario*
 
+![thinkaboutit](docs/overview.jpg)
 
 ## Setting up:
 - Download the pre-trained models from [here](https://drive.google.com/file/d/1QKSnMLpt0TfM-Jxu-eI-c92qHSjcIAov/view?usp=sharing) (or if you use gdown, you can run `gdown --id 1QKSnMLpt0TfM-Jxu-eI-c92qHSjcIAov` to directly download the models zip (23GB)).
@@ -39,6 +40,6 @@ bash scripts/train.sh moe data/unit_test/ influence_graphs.jsonl 0
 
 ## Data and pre-trained models
 
-- [dataset documentation](docs/data.md).
+- [Data documentation](docs/data.md).
 
-- [pre-trained models documentation](docs/model.md).
+- [Pre-trained models documentation](docs/pretrained_models.md)
