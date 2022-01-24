@@ -2,7 +2,7 @@
 
 ![thinkaboutit](docs/overview.jpg)
 
-Code and data *Think about it! Improving defeasible reasoning by first modeling the question scenario* (EMNLP 2021)
+Code and data *[Think about it! Improving defeasible reasoning by first modeling the question scenario](https://aclanthology.org/2021.emnlp-main.508.pdf)* (EMNLP 2021)
 
 ## Setting up
 
