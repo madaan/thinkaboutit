@@ -2,7 +2,7 @@
 
 ## Getting the dataset
 
-- Download the data directory from [here](https://drive.google.com/drive/folders/1iexS3RrtSl3T2B2fGDCz9m0nVotula8x?usp=sharing) and unzip in the the root folder (or run `gdown --id 1iexS3RrtSl3T2B2fGDCz9m0nVotula8x`).
+- Download the data directory from [here](https://drive.google.com/drive/folders/1iexS3RrtSl3T2B2fGDCz9m0nVotula8x?usp=sharing) and unzip in the the root folder (or run `gdown --id 1jz706EyCT__RHjSeUIQKQBI-XC4fswTt`).
 
 - The structure of `data` after unzipping will be as follows:
 
